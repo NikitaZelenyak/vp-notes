@@ -5,9 +5,9 @@ import { deleteFromStorage } from "../../../../lib/storage";
 
 export async function PATCH(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await params;
   const supabase = await createClient();
   const body = await req.json();
   const payload = stripUndefined(body);
@@ -24,9 +24,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await params;
   const supabase = await createClient();
   const { data: block } = await supabase
     .from("blocks")
@@ -40,10 +40,7 @@ export async function DELETE(
       // ignore storage deletion errors
     }
   }
-  const { error } = await supabase
-    .from("blocks")
-    .delete()
-    .match({ id });
+  const { error } = await supabase.from("blocks").delete().match({ id });
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

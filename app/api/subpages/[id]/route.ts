@@ -4,15 +4,16 @@ import { stripUndefined } from "../../../../lib/sanitize";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const supabase = await createClient();
   const body = await req.json();
   const payload = stripUndefined(body);
   const { data, error } = await supabase
     .from("subpages")
     .update(payload)
-    .match({ id: params.id })
+    .match({ id })
     .select()
     .single();
   if (error)
@@ -22,13 +23,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("subpages")
-    .delete()
-    .match({ id: params.id });
+  const { error } = await supabase.from("subpages").delete().match({ id });
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
