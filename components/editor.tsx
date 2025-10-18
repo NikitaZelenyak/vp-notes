@@ -30,6 +30,7 @@ interface Block {
   type: "text" | "image";
   content: any;
   position: number;
+  asset_path?: string | null;
 }
 
 export function Editor({ selectedItem, userId }: EditorProps) {

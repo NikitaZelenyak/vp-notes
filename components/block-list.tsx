@@ -1,11 +1,7 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
 import { TextBlock } from "@/components/blocks/text-block";
 import { ImageBlock } from "@/components/blocks/image-block";
-import { GripVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Block {
@@ -26,7 +22,18 @@ export function BlockList({
   onBlocksChange,
   userId,
 }: BlockListProps) {
-  // Keep logic simple: inline update/delete handlers and minimal drag UI
+  // Persist the latest ordering to the database
+  const persistPositions = async (orderedBlocks: Block[]) => {
+    const supabase = createClient();
+    await Promise.all(
+      orderedBlocks.map((block, index) =>
+        supabase
+          .from("blocks")
+          .update({ position: index })
+          .eq("id", block.id)
+      )
+    );
+  };
 
   const handleBlockUpdate = async (blockId: string, content: any) => {
     const supabase = createClient();
@@ -42,22 +49,35 @@ export function BlockList({
     const supabase = createClient();
     await supabase.from("blocks").delete().eq("id", blockId);
 
-    const updatedBlocks = blocks
+    const ordered = blocks
       .filter((block) => block.id !== blockId)
       .map((block, idx) => ({
         ...block,
         position: idx,
       }));
 
-    // Persist new positions
-    for (const block of updatedBlocks) {
-      await createClient()
-        .from("blocks")
-        .update({ position: block.position })
-        .eq("id", block.id);
-    }
+    onBlocksChange(ordered);
+    await persistPositions(ordered);
+  };
 
-    onBlocksChange(updatedBlocks);
+  const handleBlockMove = async (blockId: string, direction: "up" | "down") => {
+    const index = blocks.findIndex((block) => block.id === blockId);
+    if (index === -1) return;
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= blocks.length) return;
+
+    const reordered = [...blocks];
+    [reordered[index], reordered[swapIndex]] = [
+      reordered[swapIndex],
+      reordered[index],
+    ];
+    const ordered = reordered.map((block, idx) => ({
+      ...block,
+      position: idx,
+    }));
+
+    onBlocksChange(ordered);
+    await persistPositions(ordered);
   };
 
   if (!blocks || blocks.length === 0) {
@@ -77,6 +97,10 @@ export function BlockList({
               block={block}
               onUpdate={(content) => handleBlockUpdate(block.id, content)}
               onDelete={() => handleBlockDelete(block.id)}
+              onMoveUp={() => handleBlockMove(block.id, "up")}
+              onMoveDown={() => handleBlockMove(block.id, "down")}
+              disableMoveUp={block.position === 0}
+              disableMoveDown={block.position === blocks.length - 1}
             />
           ) : (
             <ImageBlock
@@ -84,6 +108,10 @@ export function BlockList({
               onUpdate={(content) => handleBlockUpdate(block.id, content)}
               onDelete={() => handleBlockDelete(block.id)}
               userId={userId}
+              onMoveUp={() => handleBlockMove(block.id, "up")}
+              onMoveDown={() => handleBlockMove(block.id, "down")}
+              disableMoveUp={block.position === 0}
+              disableMoveDown={block.position === blocks.length - 1}
             />
           )}
         </div>

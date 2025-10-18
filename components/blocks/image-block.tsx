@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Upload, Clipboard } from "lucide-react";
+import { Trash2, Upload, Clipboard, ArrowUp, ArrowDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
@@ -17,6 +17,10 @@ interface ImageBlockProps {
   onUpdate: (content: { url: string; name?: string }) => void;
   onDelete: () => void;
   userId: string;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  disableMoveUp?: boolean;
+  disableMoveDown?: boolean;
 }
 
 export function ImageBlock({
@@ -24,6 +28,10 @@ export function ImageBlock({
   onUpdate,
   onDelete,
   userId,
+  onMoveUp,
+  onMoveDown,
+  disableMoveUp,
+  disableMoveDown,
 }: ImageBlockProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -106,21 +114,44 @@ export function ImageBlock({
 
   return (
     <Card className="group overflow-hidden border border-border/70 bg-background/80 shadow-sm transition hover:border-primary/30 focus-within:border-primary/40">
-      <div className="flex items-center justify-between border-b border-border/60 bg-muted/60 px-3 py-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-muted/60 px-3 py-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Image block
         </span>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="text-muted-foreground transition hover:text-destructive"
-          onClick={async () => {
-            await fetch(`/api/blocks/${block.id}`, { method: "DELETE" });
-            onDelete();
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground transition hover:text-foreground disabled:opacity-40"
+            onClick={onMoveUp}
+            disabled={disableMoveUp}
+            title="Move up"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground transition hover:text-foreground disabled:opacity-40"
+            onClick={onMoveDown}
+            disabled={disableMoveDown}
+            title="Move down"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground transition hover:text-destructive"
+            onClick={async () => {
+              await fetch(`/api/blocks/${block.id}`, { method: "DELETE" });
+              onDelete();
+            }}
+            title="Delete block"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <div
