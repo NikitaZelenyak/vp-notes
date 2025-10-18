@@ -5,15 +5,16 @@ import { deleteFromStorage } from "../../../../lib/storage";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
   const supabase = await createClient();
   const body = await req.json();
   const payload = stripUndefined(body);
   const { data, error } = await supabase
     .from("blocks")
     .update(payload)
-    .match({ id: params.id })
+    .match({ id })
     .select()
     .single();
   if (error)
@@ -23,13 +24,14 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
   const supabase = await createClient();
   const { data: block } = await supabase
     .from("blocks")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
   if (block?.asset_path) {
     try {
@@ -41,7 +43,7 @@ export async function DELETE(
   const { error } = await supabase
     .from("blocks")
     .delete()
-    .match({ id: params.id });
+    .match({ id });
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
