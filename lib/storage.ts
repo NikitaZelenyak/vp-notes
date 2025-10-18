@@ -58,15 +58,22 @@ export async function getSignedUrl(
     throw new Error(`getSignedUrl failed: ${res.status} ${text}`);
   }
   const payload = await res.json();
-  // Normalise to a plain string URL. Supabase returns {signedURL} for this endpoint.
-  const signed =
-    (payload &&
-      (payload.signedURL || payload.signed_url || payload.signedUrl)) ||
-    typeof payload === "string"
-      ? payload
-      : null;
+  // Normalise to a plain string URL. Supabase returns { signedURL } for this endpoint.
+  let signed =
+    payload &&
+    (payload.signedURL || payload.signed_url || payload.signedUrl || null);
+  if (!signed && typeof payload === "string") {
+    signed = payload;
+  }
   if (!signed) {
     throw new Error("unable to parse signed url from storage response");
   }
-  return String(signed);
+  const signedString = String(signed);
+  if (signedString.startsWith("http://") || signedString.startsWith("https://")) {
+    return signedString;
+  }
+  const normalisedPath = signedString.startsWith("/")
+    ? signedString
+    : `/${signedString}`;
+  return `${SUPABASE_URL}${normalisedPath}`;
 }

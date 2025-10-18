@@ -8,6 +8,14 @@ export async function POST(req: Request) {
   const file = form.get("file") as File | null;
   const page_id = form.get("page_id") as string | null;
   const subpage_id = form.get("subpage_id") as string | null;
+  const positionValue = form.get("position");
+  const parsedPosition =
+    typeof positionValue === "string" && positionValue.trim().length > 0
+      ? Number(positionValue)
+      : 0;
+  const position = Number.isFinite(parsedPosition)
+    ? Math.max(0, Math.floor(parsedPosition))
+    : 0;
   if (!file) return NextResponse.json({ error: "no file" }, { status: 400 });
   const supabase = await createClient();
   const {
@@ -40,7 +48,7 @@ export async function POST(req: Request) {
     content: { url: await getSignedUrl(bucket, objectPath, 60 * 60) },
     asset_width: null,
     asset_height: null,
-    position: 0,
+    position,
     meta: {},
   });
 

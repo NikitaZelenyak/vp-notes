@@ -19,14 +19,12 @@ interface BlockListProps {
   blocks: Block[];
   onBlocksChange: (blocks: Block[]) => void;
   userId: string;
-  selectedItem: { type: "page" | "subpage"; id: string };
 }
 
 export function BlockList({
   blocks,
   onBlocksChange,
   userId,
-  selectedItem,
 }: BlockListProps) {
   // Keep logic simple: inline update/delete handlers and minimal drag UI
 
@@ -64,14 +62,14 @@ export function BlockList({
 
   if (!blocks || blocks.length === 0) {
     return (
-      <div className="py-6 text-center text-muted-foreground">
-        No content yet — add a block to begin.
+      <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 px-6 py-12 text-center text-sm text-muted-foreground">
+        No content yet — add a text, image, or canvas block to begin.
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {blocks.map((block) => (
         <div key={block.id} className="">
           {block.type === "text" ? (

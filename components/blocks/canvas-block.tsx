@@ -1,6 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Eraser, Save, Trash2 } from "lucide-react";
 
 interface CanvasBlockProps {
   block?: any;
@@ -95,52 +98,76 @@ export default function CanvasBlock({
   };
 
   return (
-    <div className="border rounded-md p-2">
-      <div className="flex gap-2 mb-2 items-center">
-        <label className="flex items-center gap-2">
-          <span className="text-sm">Color</span>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
-        </label>
-        <label className="flex items-center gap-2">
-          <span className="text-sm">Size</span>
-          <input
-            type="range"
-            min={1}
-            max={40}
-            value={size}
-            onChange={(e) => setSize(Number(e.target.value))}
-          />
-        </label>
-        <button className="btn" onClick={clear} type="button">
-          Clear
-        </button>
-        <button
-          className="btn btn-primary"
-          onClick={exportAndUpload}
-          type="button"
-        >
-          Save
-        </button>
-        <button
-          className="btn btn-destructive"
+    <Card className="group overflow-hidden border border-border/70 bg-background/80 shadow-sm transition hover:border-primary/30 focus-within:border-primary/40">
+      <div className="flex items-center justify-between border-b border-border/60 bg-muted/60 px-3 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Canvas block
+        </span>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground transition hover:text-destructive"
           onClick={onDelete}
-          type="button"
         >
-          Delete
-        </button>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="w-full h-[400px] bg-white touch-none"
-        onPointerDown={startDrawing}
-        onPointerMove={draw}
-        onPointerUp={stopDrawing}
-        onPointerLeave={stopDrawing}
-      />
-    </div>
+
+      <div className="space-y-4 px-3 py-4">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          <label className="flex items-center gap-2">
+            <span>Color</span>
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className="h-7 w-10 cursor-pointer rounded border border-border/60 bg-transparent"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <span>Brush</span>
+            <input
+              type="range"
+              min={1}
+              max={40}
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value))}
+              className="h-1.5 w-32 accent-primary"
+            />
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={clear}
+              className="gap-2"
+            >
+              <Eraser className="h-4 w-4" />
+              Clear
+            </Button>
+            <Button
+              size="sm"
+              type="button"
+              onClick={exportAndUpload}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-white">
+          <canvas
+            ref={canvasRef}
+            className="h-[400px] w-full touch-none"
+            onPointerDown={startDrawing}
+            onPointerMove={draw}
+            onPointerUp={stopDrawing}
+            onPointerLeave={stopDrawing}
+          />
+        </div>
+      </div>
+    </Card>
   );
 }

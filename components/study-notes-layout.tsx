@@ -38,7 +38,7 @@ interface StudyNotesLayoutProps {
 export function StudyNotesLayout({ modules, userId }: StudyNotesLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [selectedItem, setSelectedItem] = useState<{
-    type: "page" | "subpage"
+    type: "module" | "page" | "subpage"
     id: string
     title: string
   } | null>(null)
@@ -52,31 +52,48 @@ export function StudyNotesLayout({ modules, userId }: StudyNotesLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-background/80">
       {/* Header */}
-      <header className="flex h-14 items-center justify-between border-b bg-background px-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-card/80 px-6 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full text-muted-foreground hover:text-primary"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label={isSidebarOpen ? "Collapse navigation" : "Expand navigation"}
+          >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">Study Notes</h1>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Study suite
+            </p>
+            <h1 className="text-lg font-semibold text-primary">Study Notes</h1>
+          </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full text-muted-foreground hover:text-destructive"
+          onClick={handleLogout}
+          title="Sign out"
+        >
           <LogOut className="h-5 w-5" />
         </Button>
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden bg-muted/20">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <aside className="w-64 border-r bg-muted/30">
+          <aside className="w-72 border-r border-border/60 bg-sidebar/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
             <Sidebar modules={modules} userId={userId} onSelectItem={setSelectedItem} selectedItem={selectedItem} />
           </aside>
         )}
 
         {/* Editor */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-hidden">
           <Editor selectedItem={selectedItem} userId={userId} />
         </main>
       </div>

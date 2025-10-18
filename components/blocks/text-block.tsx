@@ -17,10 +17,8 @@ interface TextBlockProps {
 
 export function TextBlock({ block, onUpdate, onDelete }: TextBlockProps) {
   const [text, setText] = useState(block.content?.text || "");
-  const [isFocused, setIsFocused] = useState(false);
 
   const handleBlur = () => {
-    setIsFocused(false);
     if (text !== block.content?.text) {
       // persist to server
       fetch(`/api/blocks/${block.id}`, {
@@ -32,27 +30,30 @@ export function TextBlock({ block, onUpdate, onDelete }: TextBlockProps) {
   };
 
   return (
-    <Card className="relative p-4">
-      <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+    <Card className="group overflow-hidden border border-border/70 bg-background/80 shadow-sm transition hover:border-primary/30 focus-within:border-primary/40">
+      <div className="flex items-center justify-between border-b border-border/60 bg-muted/60 px-3 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Text block
+        </span>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
+          className="text-muted-foreground transition hover:text-destructive"
           onClick={async () => {
             // call API delete then propagate
             await fetch(`/api/blocks/${block.id}`, { method: "DELETE" });
             onDelete();
           }}
         >
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onFocus={() => setIsFocused(true)}
         onBlur={handleBlur}
         placeholder="Type your notes here..."
-        className="min-h-[100px] resize-none border-0 p-0 focus-visible:ring-0"
+        className="min-h-[140px] resize-none border-0 bg-transparent px-3 py-3 text-sm leading-relaxed focus-visible:ring-0"
       />
     </Card>
   );
