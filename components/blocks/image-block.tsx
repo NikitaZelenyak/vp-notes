@@ -60,6 +60,21 @@ export function ImageBlock({
     const signedUrl =
       signedJson.url || signedJson.signedUrl || signedJson.signed_url;
 
+    // Persist to server-side block row so asset_path exists for deletion later.
+    try {
+      // Update block with content and asset_path
+      await fetch(`/api/blocks/${block.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: { url: signedUrl, name: file.name },
+          asset_path: fileName,
+        }),
+      });
+    } catch (e) {
+      console.warn("Failed to PATCH block after upload", e);
+    }
+
     onUpdate({ url: signedUrl, name: file.name });
     setIsUploading(false);
   };
@@ -88,7 +103,15 @@ export function ImageBlock({
   return (
     <Card className="relative p-4">
       <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button variant="ghost" size="icon" onClick={onDelete}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={async () => {
+            // call API delete which also removes storage object server-side
+            await fetch(`/api/blocks/${block.id}`, { method: "DELETE" });
+            onDelete();
+          }}
+        >
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </div>

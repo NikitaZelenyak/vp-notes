@@ -28,50 +28,7 @@ export function BlockList({
   userId,
   selectedItem,
 }: BlockListProps) {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index) return;
-
-    const newBlocks = [...blocks];
-    const draggedBlock = newBlocks[draggedIndex];
-    newBlocks.splice(draggedIndex, 1);
-    newBlocks.splice(index, 0, draggedBlock);
-
-    // Update positions
-    const updatedBlocks = newBlocks.map((block, idx) => ({
-      ...block,
-      position: idx,
-    }));
-
-    setDraggedIndex(index);
-    onBlocksChange(updatedBlocks);
-  };
-
-  const handleDragEnd = async () => {
-    if (draggedIndex === null) return;
-
-    // Save new positions to database
-    const supabase = createClient();
-    const updates = blocks.map((block) => ({
-      id: block.id,
-      position: block.position,
-    }));
-
-    for (const update of updates) {
-      await supabase
-        .from("blocks")
-        .update({ position: update.position })
-        .eq("id", update.id);
-    }
-
-    setDraggedIndex(null);
-  };
+  // Keep logic simple: inline update/delete handlers and minimal drag UI
 
   const handleBlockUpdate = async (blockId: string, content: any) => {
     const supabase = createClient();
@@ -94,9 +51,9 @@ export function BlockList({
         position: idx,
       }));
 
-    // Update positions in database
+    // Persist new positions
     for (const block of updatedBlocks) {
-      await supabase
+      await createClient()
         .from("blocks")
         .update({ position: block.position })
         .eq("id", block.id);
@@ -105,38 +62,25 @@ export function BlockList({
     onBlocksChange(updatedBlocks);
   };
 
-  if (blocks.length === 0) {
+  if (!blocks || blocks.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        <p>No blocks yet. Click "Add Block" to get started.</p>
+      <div className="py-6 text-center text-muted-foreground">
+        No content yet — add a block to begin.
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {blocks.map((block, index) => (
-        <div
-          key={block.id}
-          draggable
-          onDragStart={() => handleDragStart(index)}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDragEnd={handleDragEnd}
-          className="group relative"
-        >
-          <div className="absolute -left-8 top-2 cursor-grab opacity-0 transition-opacity group-hover:opacity-100">
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
-          </div>
-
-          {block.type === "text" && (
+    <div className="flex flex-col gap-4">
+      {blocks.map((block) => (
+        <div key={block.id} className="">
+          {block.type === "text" ? (
             <TextBlock
               block={block}
               onUpdate={(content) => handleBlockUpdate(block.id, content)}
               onDelete={() => handleBlockDelete(block.id)}
             />
-          )}
-
-          {block.type === "image" && (
+          ) : (
             <ImageBlock
               block={block}
               onUpdate={(content) => handleBlockUpdate(block.id, content)}

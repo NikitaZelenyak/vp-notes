@@ -109,87 +109,37 @@ export function Editor({ selectedItem, userId }: EditorProps) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Title / Header Area */}
-      <div className="p-6">
-        <div className="bg-white rounded-xl border shadow-sm p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Editing Subpage: {title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Content Title:
-              </p>
-              <div className="mt-2">
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleUpdateTitle();
-                    if (e.key === "Escape") setIsEditingTitle(false);
-                  }}
-                  className="w-full text-lg"
-                />
-              </div>
+      <div className="p-4 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">{title || "Untitled"}</h1>
+            <div className="mt-2">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleUpdateTitle();
+                  if (e.key === "Escape") setIsEditingTitle(false);
+                }}
+                className="w-64 text-sm"
+              />
             </div>
+          </div>
 
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => handleAddBlock("text")}
-                  className="bg-violet-600 text-white"
-                >
-                  + Add Text Block
-                </Button>
-                <Button
-                  onClick={() => {}}
-                  className="bg-emerald-200 text-black"
-                >
-                  + Add Image via Paste (Ctrl+V)
-                </Button>
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => handleAddBlock("text")}>Add Text</Button>
+            <Button onClick={() => {}}>Paste Image</Button>
           </div>
         </div>
       </div>
 
-      {/* Blocks Area */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="bg-gray-50 rounded-xl border p-6">
-          <h3 className="text-lg font-semibold text-violet-600">
-            Page Content Blocks (Unlimited)
-          </h3>
-          <div className="mt-4">
-            <BlockList
-              blocks={blocks}
-              onBlocksChange={setBlocks}
-              userId={userId}
-              selectedItem={selectedItem}
-            />
-          </div>
-
-          <div className="mt-6 flex items-center justify-between">
-            <div className="flex gap-3">
-              <Button
-                onClick={() => handleAddBlock("text")}
-                className="bg-violet-100 text-violet-700"
-              >
-                + Add Text Block
-              </Button>
-              <Button
-                onClick={() => {}}
-                className="bg-violet-100 text-violet-700"
-              >
-                + Add Image via Paste (Ctrl+V)
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Button className="bg-violet-600 text-white px-6 py-2">
-                Save Subpage
-              </Button>
-              <button className="text-red-500">Delete Subpage</button>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 overflow-auto p-4">
+        <BlockList
+          blocks={blocks}
+          onBlocksChange={setBlocks}
+          userId={userId}
+          selectedItem={selectedItem}
+        />
       </div>
     </div>
   );

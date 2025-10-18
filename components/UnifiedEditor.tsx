@@ -65,53 +65,37 @@ export default function UnifiedEditor({
   }
 
   return (
-    <div>
-      <div className="space-y-3">
-        {blocks.map((block) => (
-          <div key={block.id} className="p-3 border rounded">
-            <div className="text-sm text-gray-500">
-              Block Type: {block.type.toUpperCase()}
+    <div className="space-y-3">
+      {blocks.map((block) => (
+        <div key={block.id} className="p-2 rounded">
+          {block.type === "text" ? (
+            <textarea defaultValue={block.text_content} className="w-full" />
+          ) : block.content?.url ? (
+            <img
+              src={block.content.url}
+              alt={block.content?.name || "asset"}
+              className="max-w-full"
+            />
+          ) : block.asset_path ? (
+            <div className="text-sm text-muted-foreground">
+              Resolving asset...
             </div>
-            {block.type === "text" && (
-              <textarea
-                defaultValue={block.text_content}
-                className="w-full min-h-[80px]"
-              />
-            )}
-            {block.type !== "text" && (
-              <>
-                {block.content?.url ? (
-                  <img
-                    src={block.content.url}
-                    alt={block.content?.name || "asset"}
-                    className="max-w-full"
-                  />
-                ) : block.asset_path ? (
-                  <div className="text-sm text-muted-foreground">
-                    Resolving asset...
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+          ) : null}
+        </div>
+      ))}
 
-      <div className="mt-4 flex gap-2">
+      <div className="flex gap-2 mt-3">
         <button
           onClick={addText}
-          className="bg-violet-600 text-white px-3 py-1 rounded"
+          className="px-3 py-1 rounded bg-violet-600 text-white"
         >
-          + Add Text Block
+          Add Text
         </button>
-
         <button
-          onClick={() => {
-            /* instruction to paste */
-          }}
-          className="bg-emerald-200 text-black px-3 py-1 rounded"
+          onClick={() => {}}
+          className="px-3 py-1 rounded bg-emerald-200 text-black"
         >
-          + Add Image via Paste (Ctrl+V)
+          Paste Image
         </button>
       </div>
 
